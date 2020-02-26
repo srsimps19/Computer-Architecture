@@ -5,7 +5,14 @@ import sys
 HLT = 0b00000001
 LDI = 0b10000010
 PRN = 0b01000111
+ADD = 0b10100000
+SUB = 0b10100001
 MUL = 0b10100010
+DIV = 0b10100011
+PUSH = 0b01000101
+POP = 0b01000110
+
+SP = 7
 
 class CPU:
     """Main CPU class."""
@@ -13,9 +20,20 @@ class CPU:
     def __init__(self):
         """Construct a new CPU."""
         self.ram = [0] * 256
-        self.reg= [0] * 8
+        self.reg = [0] * 8
         self.pc = 0
         self.halted = False
+        self.branchTable = {
+            HLT: self.op_hlt,
+            LDI: self.op_ldi,
+            PRN: self.op_prn,
+            ADD: self.op_add,
+            SUB: self.op_sub,
+            MUL: self.op_mul,
+            DIV: self.op_div,
+            POP: self.op_pop,
+            PUSH: self.op_push
+        }
 
     def load(self, file):
         """Load a program into memory."""
@@ -37,8 +55,16 @@ class CPU:
 
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
+        elif op == "SUB":
+            self.reg[reg_a] -= self.reg[reg_b]
         elif op == "MUL":
             self.reg[reg_a] *= self.reg[reg_b]
+        elif op == "DIV":
+            if self.reg[reg_b] > 0:
+                self.reg[reg_a] /= self.reg[reg_b]
+            else:
+                print("Cannot divide by 0")
+                self.op_hlt(self.reg[reg_a], self.reg[reg_b])
         else:
             raise Exception("Unsupported ALU operation")
     
@@ -47,6 +73,15 @@ class CPU:
 
     def ram_read(self, mar):
         return self.ram[mar]
+
+    def push_val(self, val):
+        self.reg[SP] -= 1
+        self.ram_write(val, self.reg[7])
+        
+    def pop_val(self):
+        val = self.ram_read(self.reg[7])
+        self.reg[SP] += 1
+        return val
 
     def trace(self):
         """
@@ -75,16 +110,38 @@ class CPU:
             operand_a = self.ram_read(self.pc + 1)
             operand_b = self.ram_read(self.pc + 2)
 
-            if ir == HLT:
-                self.halted = True
-            elif ir == LDI:
-                self.reg[operand_a] = operand_b
-                self.pc += 3
-            elif ir == PRN:
-                print(self.reg[operand_a])
-                self.pc += 2
-            elif ir == MUL:
-                print(self.reg[operand_a] * self.reg[operand_b])
-                self.pc += 3
+            instructionSize = ((ir >> 6)) + 1
+
+            if ir in self.branchTable:
+                self.branchTable[ir](operand_a, operand_b)
             else:
-                print("I did not understand that command.")
+                print(f"Invalid instruction")
+            
+            self.pc += instructionSize
+
+    def op_hlt(self, operand_a, operand_b):
+        self.halted = True
+    
+    def op_ldi(self, operand_a, operand_b):
+        self.reg[operand_a] = operand_b
+
+    def op_prn(self, operand_a, operand_b):
+        print(self.reg[operand_a])
+    
+    def op_add(self, operand_a, operand_b):
+        self.alu("ADD", operand_a, operand_b)
+    
+    def op_sub(self, operand_a, operand_b):
+        self.alu("SUB", operand_a, operand_b)
+
+    def op_mul(self, operand_a, operand_b):
+        self.alu("MUL", operand_a, operand_b)
+        
+    def op_div(self, operand_a, operand_b):
+        self.alu("DIV", operand_a, operand_b)
+
+    def op_push(self, operand_a, operand_b):
+        self.push_val(self.reg[operand_a])
+        
+    def op_pop(self, operand_a, operand_b):
+        self.reg[operand_a] = self.pop_val()
