@@ -51,6 +51,7 @@ class CPU:
             CMP: self.op_cmp,
             JMP: self.op_jmp,
             JEQ: self.op_jeq,
+            JNE: self.op_jne,
             AND: self.op_and,
             OR: self.op_or,
             XOR: self.op_xor,
@@ -230,8 +231,8 @@ class CPU:
     def op_xor(self, operand_a, operand_b):
         self.alu("XOR", operand_a, operand_b)
     
-    def op_not(self, operand_a):
-        self.alu("NOT", operand_a)
+    def op_not(self, operand_a, operand_b):
+        self.alu("NOT", operand_a, operand_b)
     
     def op_shl(self, operand_a, operand_b):
         self.alu("SHL", operand_a, operand_b)
