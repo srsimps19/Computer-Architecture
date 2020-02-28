@@ -11,8 +11,23 @@ MUL = 0b10100010
 DIV = 0b10100011
 PUSH = 0b01000101
 POP = 0b01000110
+CMP = 0b10100111
+JMP = 0b01010100
+JEQ = 0b01010101
+JNE = 0b01010110
+AND = 0b10101000
+OR = 0b10101010
+XOR = 0b10101011
+NOT = 0b01101001
+SHL = 0b10101100
+SHR = 0b10101101
+MOD = 0b10100100
 
 SP = 7
+
+EQUAL = 0b001
+LESS = 0b100
+GREATER = 0b010
 
 class CPU:
     """Main CPU class."""
@@ -32,8 +47,21 @@ class CPU:
             MUL: self.op_mul,
             DIV: self.op_div,
             POP: self.op_pop,
-            PUSH: self.op_push
+            PUSH: self.op_push,
+            CMP: self.op_cmp,
+            JMP: self.op_jmp,
+            JEQ: self.op_jeq,
+            AND: self.op_and,
+            OR: self.op_or,
+            XOR: self.op_xor,
+            NOT: self.op_not,
+            SHL: self.op_shl,
+            SHR: self.op_shr,
+            MOD: self.op_mod,
         }
+
+        self.flags = 0
+
 
     def load(self, file):
         """Load a program into memory."""
@@ -50,6 +78,7 @@ class CPU:
                 self.ram[address] = decVal
                 address += 1
 
+
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
 
@@ -62,6 +91,32 @@ class CPU:
         elif op == "DIV":
             if self.reg[reg_b] > 0:
                 self.reg[reg_a] /= self.reg[reg_b]
+            else:
+                print("Cannot divide by 0")
+                self.op_hlt(self.reg[reg_a], self.reg[reg_b])
+        elif op == "CMP":
+            self.flags = self.flags & 0x11111000
+            if self.reg[reg_a] < self.reg[reg_b]:
+                self.flags = self.flags | LESS
+            elif self.reg[reg_a] > self.reg[reg_b]:
+                self.flags = self.flags | GREATER
+            else:
+                self.flags = self.flags | EQUAL
+        elif op == "AND":
+            self.reg[reg_a] & self.reg[reg_b]
+        elif op == "OR":
+            self.reg[reg_a] | self.reg[reg_b]
+        elif op == "XOR":
+            self.reg[reg_a] ^ self.reg[reg_b]
+        elif op == "NOT":
+            ~self.reg[reg_a]
+        elif op == "SHL":
+            self.reg[reg_a] << self.reg[reg_b]
+        elif op == "SHR":
+            self.reg[reg_a] >> self.reg[reg_b]
+        elif op == "MOD":
+            if self.reg[reg_b] > 0:
+                self.reg[reg_a] % self.reg[reg_b]
             else:
                 print("Cannot divide by 0")
                 self.op_hlt(self.reg[reg_a], self.reg[reg_b])
@@ -111,13 +166,15 @@ class CPU:
             operand_b = self.ram_read(self.pc + 2)
 
             instructionSize = ((ir >> 6)) + 1
+            self.setOwnPC = ((ir >> 4) & 0b1) == 1
 
             if ir in self.branchTable:
                 self.branchTable[ir](operand_a, operand_b)
             else:
                 print(f"Invalid instruction")
             
-            self.pc += instructionSize
+            if not self.setOwnPC:
+                self.pc += instructionSize
 
     def op_hlt(self, operand_a, operand_b):
         self.halted = True
@@ -145,3 +202,42 @@ class CPU:
         
     def op_pop(self, operand_a, operand_b):
         self.reg[operand_a] = self.pop_val()
+
+    def op_cmp(self, operand_a, operand_b):
+        self.alu("CMP", operand_a, operand_b)
+
+    def op_jmp(self, operand_a, operand_b):
+        self.pc = self.reg[operand_a]
+
+    def op_jeq(self, operand_a, operand_b):
+        if self.flags & EQUAL:
+            self.pc = self.reg[operand_a]
+        else:
+            self.setOwnPC = False
+
+    def op_jne(self, operand_a, operand_b):
+        if not self.flags & EQUAL:
+            self.pc = self.reg[operand_a]
+        else:
+            self.setOwnPC = False
+
+    def op_and(self, operand_a, operand_b):
+        self.alu("AND", operand_a, operand_b)
+
+    def op_or(self, operand_a, operand_b):
+        self.alu("OR", operand_a, operand_b)
+    
+    def op_xor(self, operand_a, operand_b):
+        self.alu("XOR", operand_a, operand_b)
+    
+    def op_not(self, operand_a):
+        self.alu("NOT", operand_a)
+    
+    def op_shl(self, operand_a, operand_b):
+        self.alu("SHL", operand_a, operand_b)
+    
+    def op_shr(self, operand_a, operand_b):
+        self.alu("SHR", operand_a, operand_b)
+
+    def op_mod(self, operand_a, operand_b):
+        self.alu("MOD", operand_a, operand_b)
