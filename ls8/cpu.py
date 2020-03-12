@@ -9,6 +9,7 @@ ADD = 0b10100000
 SUB = 0b10100001
 MUL = 0b10100010
 DIV = 0b10100011
+AND = 0b10101000
 PUSH = 0b01000101
 POP = 0b01000110
 CMP = 0b10100111
@@ -39,6 +40,7 @@ class CPU:
             SUB: self.op_sub,
             MUL: self.op_mul,
             DIV: self.op_div,
+            AND: self.op_and,
             POP: self.op_pop,
             PUSH: self.op_push,
             CMP: self.op_cmp,
@@ -81,6 +83,8 @@ class CPU:
             else:
                 print("Cannot divide by 0")
                 self.op_hlt(self.reg[reg_a], self.reg[reg_b])
+        elif op == "AND":
+            self.reg[reg_a] &= self.reg[reg_b]
         elif op == "CMP":
             self.flags = self.flags & 0x11111000
             if self.reg[reg_a] < self.reg[reg_b]:
@@ -165,6 +169,9 @@ class CPU:
         
     def op_div(self, operand_a, operand_b):
         self.alu("DIV", operand_a, operand_b)
+
+    def op_and(self, operand_a, operand_b):
+        self.alu("AND", operand_a, operand_b)
 
     def op_push(self, operand_a, operand_b):
         self.push_val(self.reg[operand_a])
