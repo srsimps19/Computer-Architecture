@@ -1,6 +1,6 @@
-"""CPU functionality."""
-
 import sys
+from datetime import datetime
+
 
 ADD = 0b10100000
 AND = 0b10101000
@@ -189,7 +189,7 @@ class CPU:
                 self.ie = 0 
                 self.reg[IS] &= ~(1 << i)
                 self.push_val(self.pc)
-                self.push_val(self.fl)
+                self.push_val(self.flags)
                 for r in range(7):
                     self.push_val(self.reg[r])
                 self.pc = self.ram_read(0xf8 + i)
