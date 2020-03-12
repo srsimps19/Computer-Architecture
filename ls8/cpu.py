@@ -2,20 +2,40 @@
 
 import sys
 
-HLT = 0b00000001
-LDI = 0b10000010
-PRN = 0b01000111
 ADD = 0b10100000
-SUB = 0b10100001
-MUL = 0b10100010
-DIV = 0b10100011
 AND = 0b10101000
-PUSH = 0b01000101
-POP = 0b01000110
+CALL = 0b01010000
 CMP = 0b10100111
-JMP = 0b01010100
+DEC = 0b01100110
+DIV = 0b10100011
+HLT = 0b00000001
+INC = 0b01100101
+INT = 0b01010010
+IRET = 0b00010011
 JEQ = 0b01010101
+JGE = 0b01011010
+JGT = 0b01010111
+JLE = 0b01011001
+JLT = 0b01011000
+JMP = 0b01010100
 JNE = 0b01010110
+LD  = 0b10000011
+LDI = 0b10000010
+MOD = 0b10100100
+MUL = 0b10100010
+NOP = 0b00000000
+NOT = 0b01101001
+OR = 0b10101010
+POP = 0b01000110
+PRA = 0b01001000
+PRN = 0b01000111
+PUSH = 0b01000101
+RET = 0b00010001
+SHL = 0b10101100
+SHR = 0b10101101
+ST = 0b10000100
+SUB = 0b10100001
+XOR = 0b10101011
 
 SP = 7
 
@@ -33,20 +53,40 @@ class CPU:
         self.pc = 0
         self.halted = False
         self.branchTable = {
-            HLT: self.op_hlt,
-            LDI: self.op_ldi,
-            PRN: self.op_prn,
             ADD: self.op_add,
-            SUB: self.op_sub,
-            MUL: self.op_mul,
-            DIV: self.op_div,
             AND: self.op_and,
-            POP: self.op_pop,
-            PUSH: self.op_push,
+            CALL: self.op_call,
             CMP: self.op_cmp,
-            JMP: self.op_jmp,
+            DEC: self.op_dec,
+            DIV: self.op_div,
+            HLT: self.op_hlt,
+            INC: self.op_inc,
+            INT: self.op_int,
+            IRET: self.op_iret,
             JEQ: self.op_jeq,
+            JGE: self.op_jge,
+            JGT: self.op_jgt,
+            JLE: self.op_jle,
+            JLT: self.op_jlt,
+            JMP: self.op_jmp,
             JNE: self.op_jne,
+            LD: self.op_ld,
+            LDI: self.op_ldi,
+            MOD: self.op_mod,
+            MUL: self.op_mul,
+            NOP: self.op_nop,
+            NOT: self.op_not,
+            OR: self.op_or,
+            POP: self.op_pop,
+            PRA: self.op_pra,
+            PRN: self.op_prn,
+            PUSH: self.op_push,
+            RET: self.op_ret,
+            SHL: self.op_shl,
+            SHR: self.op_shr,
+            ST: self.op_st,
+            SUB: self.op_sub,
+            XOR: self.op_xor,
         }
 
         self.flags = 0
