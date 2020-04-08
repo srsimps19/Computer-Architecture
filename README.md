@@ -1,39 +1,28 @@
-# Computer Architecture
+# Learning Computer Architecture
 
-## Project
 
-* [Implement the LS-8 Emulator](ls8/)
+## What is the LS-8 Emulator? 
 
-## Task List: add this to the first comment of your Pull Request
+The LS-8 Emulator is a Python program that imitates a computer. This project was built to teach computer architecture. 
 
-### Day 1: Get `print8.ls8` running
+## Getting Started
 
-- [ ] Inventory what is here
-- [ ] Implement the `CPU` constructor
-- [ ] Add RAM functions `ram_read()` and `ram_write()`
-- [ ] Implement the core of `run()`
-- [ ] Implement the `HLT` instruction handler
-- [ ] Add the `LDI` instruction
-- [ ] Add the `PRN` instruction
+Before running this project you will need Python 3 installed on your computer.
 
-### Day 2: Add the ability to load files dynamically, get `mult.ls8` running
+To run the LS-8 Emulator drop down into the ls8 folder in your terminal and run the command 
+> python3 ls8.py examples/(*insert file from examples folder here*)
 
-- [ ] Un-hardcode the machine code
-- [ ] Implement the `load()` function to load an `.ls8` file given the filename
-      passed in as an argument
-- [ ] Implement a Multiply instruction (run `mult8.ls8`)
+## Built With
 
-### Day 3: Stack
+* Python3
 
-- [ ] Implement the System Stack and be able to run the `stack.ls8` program
+## Authors
 
-### Day 4: Get `call.ls8` running
+* Beej Jorgensen - Initial Project - Lambda School
+* Sydney Crumley - Finished Project
 
-- [ ] Implement the CALL and RET instructions
-- [ ] Implement Subroutine Calls and be able to run the `call.ls8` program
+## Acknowledgements
 
-### Stretch
+* Sean Chen - Contributed Code
+* Brady Fukumoto - Contributed Code
 
-- [ ] Add the timer interrupt to the LS-8 emulator
-- [ ] Add the keyboard interrupt to the LS-8 emulator
-- [ ] Write an LS-8 assembly program to draw a curved histogram on the screen
